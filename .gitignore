@@ -1,0 +1,4 @@
+.DS_Store
+bank_agencies/raw/zipped_files/
+bank_agencies/raw/unzipped_files/
+*.rds
