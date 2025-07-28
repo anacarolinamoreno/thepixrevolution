@@ -2,3 +2,6 @@
 bank_agencies/raw/zipped_files/
 bank_agencies/raw/unzipped_files/
 *.rds
+.Rproj.user
+/page_img/illustrator_files
+page_img/header.webp

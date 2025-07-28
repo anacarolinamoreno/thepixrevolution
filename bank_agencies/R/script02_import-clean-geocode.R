@@ -1,4 +1,4 @@
-# Lede Project: Pix versus bank agencies
+# Lede Project: Visualizating bank agencies in Brazil over time
 # Dataset: Data base of bank physical agencies address
 # Source: Brazil Central Bank (BCB)
 # Deprecated link (incomplete time series - missing some months and discontinued on November/2024): https://www.bcb.gov.br/acessoinformacao/legado?url=https:%2F%2Fwww.bcb.gov.br%2Ffis%2Finfo%2Fagencias.asp
@@ -347,7 +347,9 @@ agencies_joined <- left_join(
   by = c("city", "state"))
 
 
-# 2.4.3- Geocoding
+###########################
+# 3- GEOCODE DATA
+###########################
 
 # First we'll flatten the dataset to get only the unique address
 agencies_to_geocode <- agencies_joined |>
@@ -412,8 +414,9 @@ agencies_full <- left_join(
 write_rds(agencies_full, "data/agencies_2016_2025_jun_dec.rds")
 
 # For data visualization purposes, there is no need to keep all of these points and months
-# It will also leave us with a file unnecesarily heavy to load
-# So we'll filter out columns
+# It will also leave us with a file unnecessarily heavy to load
+# The next few lines of codes are attempts to get to a file that will be useful on the website
+# I finally chose to use just the data for June (ten months)
 
 
 agencies <- left_join(
@@ -446,18 +449,10 @@ agencies <- left_join(
          full_address,
          geom)
 
-# Okay, we're finished cleaning and are left with 369,337 points showing bank agencies over time.
-# We will use this can try to get a smaller dataset, for datavisualization purposes.
-
-# Now we can save this as a geoJSON file and explore a visualization on Mapbox.
-# And we can analyze the data to gather more insights for our story.
-
 st_write(agencies,
          dsn = "data/agencies_2016_2025_jun_dec.geojson",
          driver = "GeoJSON",
          append=FALSE)
-
-
 
 round_geoloc <- geocoded_addresses_narm |>
   mutate(lat_round = round(lat,4),
@@ -540,12 +535,7 @@ st_write(agencies_jun_2016_2025,
          driver = "GeoJSON",
          append=FALSE)
 
-distinct_agencies <- agencies_jun_2016_2025 |>
-  janitor::tabyl(year)
 
-install.packages("geojsonio")
-
-geojsonio::topojson_write(agencies_dec, file = "data/agencies_2016_2025_dec.topojson")
 
 # CHECKPOINT FOR ZIP CODE ERROR
 # On "raw_agencies" an error telling you the CEP column should have no more than 8 digits
@@ -576,45 +566,6 @@ agencies_joined <- agencies_joined |>
     cep == 110600002 ~ 11060002,
     cep == 256201001 ~ 25620001,
     T ~ cep))
-
-
-
-
-
-glimpse(df_agencies)
-#### CONTINUAR DAQUI
-
-agency_code_check <- agencies_cleaned |>
-  janitor::tabyl(cod_agency_compensation)
-
-number_check <- agencies_cleaned |>
-  filter(is.na(number))
-
-##
-unique_agencies <- agencies_cleaned |>
-  distinct(full_agency_name)
-
-unique_banks <- agencies_cleaned |>
-  distinct(bank)
-
-df_check <- agencies_cleaned |>
-  filter(state == "DF")
-
-check <- raw_agencies |>
-  distinct(state)
-
-
-
-
-
-
-##### CONTINUAR DAQUI
-
-
-
-
-?lookup_muni
-
 
 
 

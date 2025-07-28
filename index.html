@@ -1,33 +1,288 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<meta charset="utf-8" />
-<title>The Pix Revolution</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
-<link
-  href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css"
-  rel="stylesheet"
-/>
+  <title>The Pix Revolution</title>
+  <link rel="icon" href="page_img/logo.webp">
 
-</head>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      /* Prevent scroll chaining */
+      overscroll-behavior-y: contain;
+      background: #f0fcfc;
+    }
 
-<body>
+    /* Container 1: HEAD */
+    .head-container {
+      max-width: 800px; 
+      max-height: 480px; 
+      display: flex; 
+      border: 0px; 
+      margin: 0px auto; 
+      overflow: hidden;
+    }
 
-<style>
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
+    .head-text {
+      width: 50%;
+      padding: 20px; 
+      box-sizing: border-box; 
+      overflow-y: auto;
+    }
 
-#map {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 100%;
-}
+    .head-img {
+        width: 50%; 
+        height: 100%; 
+        overflow: hidden;
+    }
+
+    .head {
+      font-family: 'Lora', Georgia, serif;
+      font-weight: bold;
+      font-size: 4em;
+      line-height: 1.1;
+      max-width: 640px;
+      color: #31285f;
+    }
+
+    .subhead {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 1.2em;
+      margin-bottom: 1em;
+      max-width: 640px;
+      color: #31285f;
+    }
+
+    .by-line {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 1em;
+      margin-bottom: 0;
+      max-width: 640px;
+      color: #515151;
+      text-align: center;
+    }
+
+    .date {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 0.8em;
+      margin-bottom: 1em;
+      max-width: 640px;
+      color: #515151;
+      text-align: center;
+    }
+
+    /* Divider line to use if necessary between sections */
+    .divider-head {
+            width: 100%;
+            height: 1px;
+            background-color: #ddd; /* Light gray color */
+            margin-bottom: 20px; /* Space only below the line */
+            margin-top: 0; /* No space above the line */
+        }
+
+    .divider-foot {
+            width: 100%;
+            height: 1px;
+            background-color: #ddd; /* Light gray color */
+            margin-bottom: 0; /* Space only below the line */
+            margin-top: 0; /* No space above the line */
+        }
+
+
+    /* Container 2: CONTENT */
+
+    /* Story content styling */
+    .content-container {
+      min-height: 100vh;
+      padding: 0;
+      max-width: 640px;
+      margin: 0 auto;
+      background: #f0fcfc;
+    }
+
+    .content {
+        font-family: 'Lora', Georgia, serif;
+        color: #3a3a3a;
+        max-width: 640px;
+        font-size: 1em;
+        margin: auto;
+        position: relative; 
+        z-index: 1; 
+        background-color: #f0fcfc; /* Optional: make text more readable */
+        padding: 0; /* Optional: add some spacing */
+        margin-top: 10px; /* Optional: add some top margin */   
+        margin-bottom: 0;
+    }
+
+    .content-title {
+        font-family: 'Lora', Georgia, serif;
+        color: #31285f;
+        max-width: 640px;
+        font-size: 1.6em;
+        font-weight: bold;
+        margin: auto;
+        position: relative; 
+        z-index: 1; 
+        background-color: #f0fcfc; /* Optional: make text more readable */
+        padding: 0; /* Optional: add some spacing */
+        margin-top: 20px; /* Optional: add some top margin */   
+    }
+
+    .highlight {
+        background-color: #f9e4d5; /* Yellow highlighter color */
+        padding: 0.01em 0.01em; /* Small padding around text */
+        box-decoration-break: clone; /* Ensures highlighting wraps properly */
+        /* opacity: 0.7; */
+        z-index: -1;
+    }
+
+    .image {
+        position: relative;
+        max-width: 640px;
+        display: block;
+        margin-top: 30px;
+        margin-bottom: 40px;
+        margin-left: 0;
+        margin-right: 0;
+        background-size: cover;
+    } 
+
+
+    /* Container 3: MAPBOX GL JS */
+    .map-container {
+         height: 100vh;
+         position: relative;
+         margin-bottom: 0;
+         border: 2px solid #cfcfcf; /* Border color */
+         box-sizing: border-box; /* Ensures border is included in height calculation */
+         box-shadow: 0 0 10px rgba(0,0,0,0.2); /* Optional subtle shadow */
+    }
+
+    #map {
+         height: 100%;
+         width: 100%;
+    }
+
+    /* Console controls - it goes inside the map container */
+    #console {
+         position: absolute;
+         bottom: 20px;
+         right: 20px;
+         width: 240px;
+         padding: 15px;
+         background-color: white;
+         box-shadow: 0 0 10px rgba(0,0,0,0.2);
+         z-index: 100;
+         margin-bottom: 2px;
+    }
+
+    .scroll-container {
+      position: relative;
+    }
+
+    /* Make sure content scrolls over map */
+    .scroll-content {
+         position: relative;
+         background: #f0fcfc;
+         z-index: 10;
+    }
+
+    /* Ensure body/html can scroll */
+    html, body {
+        height: 100%;
+    }
+
+    /* Container 4: SVG CHART */
+
+    .svg-container {
+        min-height: 100vh;
+        padding: 0;
+        max-width: 640px;
+        margin: 0 auto;
+        background: #f0fcfc;
+    }
+
+    #my-svg-chart, svg {
+        display: block;
+        position: relative;
+        margin: 0 auto;
+        padding: 0;
+    }
+
+    #my-svg-chart g {
+        pointer-events: all;
+        cursor: pointer;
+    }
+
+    #my-svg-chart text {
+        /* display: none; */
+        font-family: 'Lora', Georgia, serif;    
+    }
+
+    #my-svg-chart .show text {
+        display: block;
+    }
+
+    /* Container 5: FOOTER */
+    .footer-container {
+      padding: 0;
+      background: #f0fcfc;
+      text-align: left;
+    }
+
+    .methodology {
+        max-width: 640px;
+        margin: 0;
+        margin: auto;
+        padding: 30px;
+        border: 1px solid #c1adeb; /* Thick blue border */
+        border-radius: 0; /* Slightly rounded corners */
+        /* background-color: #eee1f9; Light background */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Subtle shadow */
+        font-family: 'Lora', Georgia, serif;
+        line-height: 1.6;
+        color: #31285f;
+    }
+        
+    .methodology a {
+        color: #5e4e95;
+        text-decoration: underline;
+    }
+
+     .methodology h1 {
+        color: #5e4e95;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 10px;
+        margin-top: 0;
+        font-size: 1.8em;
+        text-align: center;
+    }
+        
+    .methodology ul {
+        padding-left: 5px;
+    }
+        
+    .methodology li {
+        margin-bottom: 5px;
+    }
+        
+    @media (max-width: 700px) {
+        .methodology {
+            margin: 20px 10px;
+            padding: 20px;
+        }
+    }
+
+
 
 h1 {
   font-size: 20px;
@@ -41,16 +296,8 @@ h2 {
 }
 
 a {
-  text-decoration: none;
-  color: #2dc4b2;
-}
-
-#console {
-  position: absolute;
-  width: 240px;
-  margin: 10px;
-  padding: 10px 20px;
-  background-color: white;
+  text-decoration: underline;
+  color: #DE5E00;
 }
 
 .session {
@@ -62,65 +309,457 @@ a {
   width: 100%;
 }
 
-.colors {
-  background: linear-gradient(
-    to right,
-    #2dc4b2,
-    #3bb3c3,
-    #669ec4,
-    #8b88b6,
-    #a2719b,
-    #aa5e79
-  );
-  margin-bottom: 5px;
-}
-
 .label {
   width: 15%;
   display: inline-block;
   text-align: center;
 }
-
-
-
 </style>
 
-<div id="map">
+
+
+</head>
+
+<body>
+
+<div class="head-container">
+    <!-- Text container (left) -->
+    <div class="head-text">
+        <h1 class="head">The Pix Revolution</h1>
+        <p class="subhead">A new <span class="highlight">instant payment system</span> 
+        changed how Brazilians use money. One in five bank agencies already closed down since it launched.</p>
+        <p class="by-line"><em>By Ana Carolina Moreno</em></p>
+        <p class="date">July 27, 2025</p>
+    </div>
+    
+    <!-- Image container (right) -->
+    <div class="head-img">
+        <img 
+        style="width: 100%; height: 100%; object-fit: cover;"
+        src="page_img/header_mobile.webp"
+        alt="Credit: Rodion Kutsaiev via Unsplash">
+    </div>
 </div>
 
-<div id="console">
-  <h1>Bank agencies in Brazil</h1>
+<!-- Just a simple divider to keep it clean and pretty -->
 
-  <p>
-    Use the slider to see the change over time:
-  </p>
+<div class="divider-head"></div>
 
-  <div class="session" id="sliderbar">
-  <h2>Year: <label id="active-year">2016</label></h2>
-  <input
-    id="slider"
-    class="row"
-    type="range"
-    min="2016"
-    max="2025"
-    step="1"
-    value="10"
-  />
-  </div>
-  
+<!-- First part of the text -->
 
-  <p>
-    Data:
-    <a
-      href="https://www.bcb.gov.br/estabilidadefinanceira/agenciasconsorcio"
-      >Bank agency addresses (Brazil Central Bank)</a
-    >
-    as of June from 2016 to 2025
-  </p>
-  </div>
-  
+<div class="content-container">
+    
+    <p class="content">When was the last time you <strong>set foot inside a brick-and-mortar bank</strong>? For me, it was last month, because of one of those surrealist bureaucratic problems that demand that you transport your body to a physical location and speak face to face to a real official human being so they can look at information printed on your paper and type more information back into the digital system.</p>
+
+    <p class="content">I went during lunch time to an agency in a crowded neighborhood of São Paulo, the largest city in South America. What ten years ago would be a chaotic place was now almost deserted.</p>
+    
+    <p class="content">A couple of people were using the ATM machines on the entrance section. To actually go in (and through the horrible Brazilian robbery preventing system — a transparent revolving doors that block you if you have your keys, cellphone, coins and sometimes only the clothes in your body) I needed to send my digitized documents via e-mail before a lady would hand me a number. Why ask me to print everything out? We'll never know...</p>
+
+    <p class="content">Inside, it felt like a ghost town: the two story place had one guard by the door, another by the stairs and one lonesome employee way in the back, helping a client. Besides her, another employee was around, but on his lunch break. About four desks had no sign of use, and two specific departments, including the one I needed, were empty and with the lights off. There was no more demand to justify having someone dedicated only to that service.</p>
+
+    <p class="content-title">The death of bank agencies</p>
+    
+    <p class="content">It took me 45 minutes to get called upstairs, where three other employees were working, but apparently not with clients. In total, I counted five employees, three security guards and about five clients during the hour I spent there. </p>
+
+    <p class="content">That's not very surprising, considering <span class="highlight">38%</span> of Brazilians hadn't gone to the bank in the six months prior to October 2024, <a target="_blank" href="https://international.nubank.com.br/wp-content/uploads/2024/10/NUBANK_PESQUISA-IPSOS.pdf">according to this survey</a>.</p>
+
+    <p class="content">But an exclusive analysis of Brazil Central Bank data shows that <span class="highlight">one in five bank agencies closed down</span> from June 2020 until June 2025.</p>
+
+    <p class="content">I discovered that after scraping, cleaning and finding the geolocation of almost 200,000 addresses listed in the past decade. See for yourself:</p>
+
+    <p></p>
+</div>
+
+<!-- This div is important to keep the Mapbox in the correct position -->
+<div class="scroll-container">
+
+    <!-- Insert the Mapbox GL JS so user can slide through the years -->
+ <div class="map-container">
+    <div id="map"></div>
+    
+    <div id="console">
+      <h1>Bank agencies in Brazil</h1>
+      <p>Use the slider to see the change over time:</p>
+      
+    <div class="session" id="sliderbar">
+        <h2>Year: <label id="active-year">2016 (June)</label></h2>
+        <input id="slider" class="row" type="range" min="2016" max="2025" step="1" value="2016"/>
+    </div>
+    
+        <p>Data: <a href="https://www.bcb.gov.br/estabilidadefinanceira/agenciasconsorcio">Bank agency addresses (Brazil Central Bank)</a> as of June from 2016 to 2025</p>
+    
+    </div>
+</div>
+</div>
+
+
+<!-- Back to more text: -->
+<div class="content-container">
+
+    <p class="content">Looking back ten years, the total dropped <span class="highlight">28.8%</span>, from 22,701 in June 2016 to 16,165 in June 2025 
+        (the most recent available data). But the trend picked up pace after June 2020.</p>
+
+    <p class="content">This phenomenon was more intense among private banks (national or foreign owned): 
+        the total number fell <span class="highlight">39.3%</span>. In the public sector, there was a <span class="highlight">15.9%</span> decrease. 
+        The result is that nowadays the public banks account for the majority of agencies (still) out there.</p>
+
+    <p class="content">And now even more municipalities in the country have zero bank agencies. Brazil has 5,569 cities and towns.
+        In 2026, almost two thirds of them had at least one physical place offering banking services. That number is now just <span class="highlight">a little over half</span>:</p>
+
+    <!-- Adding a div for the SVG chart -->
+    <div id="my-svg-chart"></div>
+
+    <!-- Back to more text: -->
+
+    <p class="content">
+        The Central Bank has made it clear that, although less towns have full bank agencies, 
+        most of the others are equipes with what they call "service posts", which are subsidiaries of agencies,
+        usually located inside companies or other institutions.
+    </p>
+
+    <p class="content">
+        But physical trips to the bank have become a rare necessity for Brazilians.
+        All thanks to a combo of three phenomena that coincided in the country: <span class="highlight">digital banks</span>, 
+        the <span class="highlight">pandemic</span> and the three-letter word that has even had the US government on its heels: <span class="highlight">PIX</span>.
+    </p>
+
+    <p class="content-title">Innovation carnival</p>
+
+    <p class="content">
+        Digital banking has been around in Brazil for only ten years. But fintechs found the country ripe for innovations and turned the system on its feet.
+    </p>
+
+    <p class="content">
+        In 2016, bank was synomynous to hassle, long lines and a patience test. Not to mention unexplicably high fees.
+        Remember the revolving doors from hell? It was one of the reasons that led Colombian entrepreneur David Vélez to start his own bank in Brazil.
+        Nubank doesn't have revolving doors, or any doors: the service is 100% digital and the bank spent years trying to wow people with good service.
+        It now has over <span class="highlight">100 million</span> individual clients in Brazil, Colombia and Mexico.
+    </p>
+
+    <p class="content">
+        Besides Nubank, Banco Inter and C6 are other examples of new banks that were born digital.
+        And the old banks were finally forced to catch and offer easier services to keep their clients.
+    </p>
+
+    <p class="content">
+        But Brazil, like most emerging economies, still had a large population off the financial system altogether.
+        They are informal workers who used mostly cash transactions and had little incentive to open a bank account.
+        Until the Covid-19 pandemic hit the country and hit the informal market especially hard.
+    </p>
+
+    <p class="content-title">A flood of new clients</p>
+
+    <p class="content">
+        The Brazilian Congress acted quickly to try and help the economy during the quarentine.
+        A new program called "Emergency Relief" reached almost 70 million people in 2020.
+    </p>
+
+    <p class="content">
+        A huge part of them had to open a bank account for the first time to have access to the monthly payments.
+        According to the Brazil Central Bank, the system gained around <span class="highlight">20 million new clients</span> that year.
+    </p>
+    
+    <p><img 
+        class="image"
+        src="page_img/chart_02-financial-system.webp" 
+        alt="53.4% of Brazilians think they'll stop using cash altogether in the next five years">
+    </p>
+
+    <p class="content">
+        Most of the newcomers made their debut with digital accounts, which they opened over the phone without leaving their house.
+        And a few months later, as of November of 2020, the Central Bank would rollout a new feature that would soon change how they made payments too.
+    </p>
+
+    <p class="content-title">Pix and patriotism</p>
+
+    <p class="content">
+        The first ever official Pix transaction was a US$ 54 payment from PicPay to Banco Inter at 00:04am of November 16th, 2020.
+        It was Brazil's debut in the world of instant payments. These systems allow anyone to transfer money 24/7,
+        making sure the money goes from one bank account to another in mere seconds.  
+    </p>
+
+    <p class="content">
+        It was an instant hit. The name was catchy and the rules were made by the federal government, 
+        which made banks and other financial institutions join the system.
+    </p>
+
+    <p class="content">
+        But best of all, it was free for individuals to transfer money to each other. The only tariffs are applied when businesses are involved.
+    </p>
+
+    <p class="content">
+        Just like "to venmo", "to make a Pix" became a thing, but an official and free of charge thing.
+        If you need an emergency visit from a plumber, you can "make a Pix" to him when he finishes work.
+        In the streets and crossroads, beggers write their Pix key on cardboards so drivers can copy it and send some cash.
+    </p>
+
+    <p class="content">
+        Since Day One, Brazilians have sent a Pix over <span class="highlight">150 billion</span> times.
+        They helped Brazil surpass China to take the number 2 spot in the world ranking of instant payments, 
+        behind the behemoth India, whose UPI is much older and more developed.
+    </p>
+
+    <p class="content">
+        So far, <span class="highlight">40%</span> of the adult population had never transferred money before Pix. That's around <span class="highlight">70 million</span> people.
+        In the first quarter of the year, <span class="highlight">49%</span> of payments made in Brazil were via Pix.
+    </p>
+
+    <p><img 
+        class="image"
+        src="page_img/chart_03-payment-types.webp" 
+        alt="49% of payments in Brazil are made using Pix">
+    </p>
+
+    <p class="content">
+        Notice how the total number of payments has increased? That means Pix didn't exactly take over, it helped include more people in the system.
+        But the majority of users choose Pix for their daily transactions, so the mean value of these payments are pretty small.
+    </p>
+
+    <p class="content">
+        For larger amounts, they still prefer the TED, an older form of transfer between banks that is also supervised by the BCB, but can take up to 60 minutes.
+        However, in 2025, only five years after coming to life, Pix has surpassed the credit cards in volume of transactions.
+    </p>
+
+    <p class="content">
+        That's in part why the US government has announce last week it will <a target="_blank" href="https://www.ft.com/content/e17e6de1-d863-46f8-bfab-fa8cbfc495f0">launch a probe</a> to investigate if Pix has been used by the Brazilian government
+        in "unfair trade practices" that are harming American companies like Mastercard and Meta, which has its new digital payment system inside WhatsApp.
+    </p>
+
+    <p class="content">
+        The Brazilian government denies any wrongdoing and the population has rallied behind president Lula to defend its darling Pix, 
+        which has become 
+        <a target="_blank" href="https://www.meioemensagem.com.br/marketing/quais-sao-as-marcas-mais-valiosas-e-as-mais-fortes-do-brasil">Brazil's most 
+            beloved brand</a>, behind decades old chocolate, perfume and appliances brands.
+        The P in Pix now pretty much stands for Patriotism. A good example is this online campaign started by the federal government:
+    </p>
+
+    <p><img 
+        class="image"
+        src="page_img/pix_e_nosso_my_friend.webp" 
+        alt="Online campaign to defend Pix">
+    </p>
+
+    <p class="content">
+        Are credit cards losing ground to the Pix? No question about it. But surprisingly enough, credit cards have reaped plenty of indirect benefits 
+        from the superstar payment system. The bottom line is, Pix has led so many Brazilians to stop carrying cash that businesses who historically
+        refused card payments in protest against the hefty fees were obligated to capitulate.
+    </p>
+
+    <p class="content">
+        A recent study by the Central Bank shows how card payments have been tagging along the Pix wave:
+    </p>
+
+    <p><img 
+        class="image"
+        src="page_img/chart_04-accepted-payments.webp" 
+        alt="How credit cards have surfed the Pix wave">
+    </p>
+
+    <p class="content">
+        At the end of the day, cash withdrawals from banks are the real silent losers in this story.
+        In 2020, when Pix came to life, they accounted for <span class="highlight">8%</span> of payments.
+        Nowadays, their share has diminished to a mere <span class="highlight">2%</span>.
+    </p>
+
+    <p class="content">
+        And over half the people are beginning to envision a future without money bills as early as in the next five years.
+    </p>
+
+    <p><img 
+        class="image"
+        src="page_img/chart_01-money-payments_h.webp" 
+        alt="53.4% of Brazilians think they'll stop using cash altogether in the next five years">
+    </p>
 
 </div>
+
+<!-- Just a simple divider to keep it clean and pretty -->
+<div class="divider-foot"></div>
+
+<!-- Insert footnotes -->
+<div class="footer-container">
+    <section class="methodology">
+        <h1>Methodology</h1>
+        
+        <p text-align='center'>(read full methodology and code on <a target="_blank" href="https://github.com/anacarolinamoreno/thepixrevolution">Github)</a></p>
+
+        <p>This project was developed for the 2025 Lede Data Journalism Program.</p>
+
+        <p>The goal was to apply the following techniques:</p>
+        
+        <ul>
+            <li><strong>Data Collection:</strong></li>
+            Scrape the Brazil Central Bank Website (XPath + Browser inspection)
+            <br><br>
+            <li><strong>Data Automation (R):</strong></li>
+            Automate download for the over 100 zip files, as well as the unzipping, ingesting and cleaning process
+            <br><br>
+            <li><strong>Geocoding (R):</strong></li>
+            Test the new geocodebr package on over 55,000 addresses
+            <br><br>
+            <li><strong>Data Analysis (R):</strong></li>
+            Extract insights from the bank agencies dataset
+            <br><br>
+            <li><strong>Mapping (Mapbox GL JS):</strong></li>
+            Create from scratch a map with a time slider to allow interactivity while viewing the time series
+            <br><br>
+            <li><strong>Data Visualization (Datawrapper+Illustrator+d3):</strong></li>
+            Illustrate the news story with more data following a color palette and visual standard
+            <br><br>
+            <li><strong>Presentation (HTML/CSS):</strong></li>
+            Create a webpage with the storytelling that is mobile responsive
+        </ul>
+
+    </section>
+</div>
+
+<!-- Script for the SVG chart -->
+<script>
+  // Step 3. add data variables
+  const values = [100, 64.1, 53.4]; // Three values for concentric circles
+  const years = ["", "2016", "2025"]; // Corresponding years for annotations
+  
+  // Step 4. transform data into usable scales
+  const scaleRadius = d3.scaleSqrt()
+    .domain([0, 100]) // 100 is our largest value
+    .range([0, 200]); // Max radius of 200 pixels
+  
+  // Step 5. create SVG container
+  const svg = d3.select("#my-svg-chart")
+    .append("svg")
+    .attr('width', 640)
+    .attr('height', 560)
+    .style('background-color', '#f0fcfc'); // Light background for better visibility
+
+  // Add title at the top
+  svg.append('text')
+    .attr('x', 320) // center of SVG
+    .attr('y', 40) // top margin
+    .attr('text-anchor', 'middle')
+    .style('font-family', 'Lora')
+    .style('font-size', '20px')
+    .style('font-weight', 'bold')
+    .style('fill', '#515151')
+    .text('Municipalities with at least one bank agency:');
+  
+  // Center coordinates
+  const centerX = 320;
+  const centerY = 280;
+  
+  // Step 6. create SVG circles
+  const circles = svg
+    .selectAll('circle')
+    .data(values.sort((a,b) => b - a)) // Sort from largest to smallest
+    .enter()
+    .append('circle');
+  
+  // Step 7. position the circles concentrically
+  circles
+    .attr('cx', centerX)
+    .attr('cy', centerY)
+    .attr('r', d => scaleRadius(d));
+  
+  // Step 8. color the circles with different opacities
+  const colors = ['#d3e4e5', '#32bcad', '#FF9344']; // Color palette
+  circles
+    .style('fill', (d,i) => colors[i])
+    .style('opacity', 0.7)
+    .style('stroke', '#333')
+    .style('stroke-width', 1);
+  
+  // Add value labels
+  svg.selectAll('.value-label')
+    .data(values)
+    .enter()
+    .append('text')
+    .attr('x', centerX)
+    .attr('y', (d,i) => centerY - scaleRadius(d) - 4)
+    .text(d => d + "%")
+    .attr('text-anchor', 'middle')
+    .style('font-family', 'Lora')
+    .style('font-size', '12px')
+    .style('fill', '#515151')
+    .style('font-weight', 'bold');
+  
+  // Add year annotations with arrows (only for 64.1 and 53.4)
+  const annotations = [
+    {
+      value: 64.1,
+      year: "2016",
+      dx: -40,  // x offset from circle edge
+      dy: -40,   // y offset from circle edge
+      anchor: "end"
+    },
+    {
+      value: 53.4,
+      year: "2025",
+      dx: -140,
+      dy: -90,
+      anchor: "start"
+    }
+  ];
+  
+  // Create annotation group
+  const annotationGroup = svg.append('g')
+    .attr('class', 'annotations');
+  
+  // Add each annotation
+  annotations.forEach(ann => {
+    const radius = scaleRadius(ann.value);
+    const angle = Math.atan2(ann.dy, ann.dx);
+    const startX = centerX + radius * Math.cos(angle);
+    const startY = centerY + radius * Math.sin(angle);
+    const endX = centerX + (radius + 40) * Math.cos(angle);
+    const endY = centerY + (radius + 40) * Math.sin(angle);
+    
+    // Add arrow line
+    annotationGroup.append('line')
+      .attr('x1', startX)
+      .attr('y1', startY)
+      .attr('x2', endX)
+      .attr('y2', endY)
+      .attr('stroke', '#515151')
+      .attr('stroke-width', 1)
+      .attr('marker-end', 'url(#arrowhead)');
+    
+    // Add arrowhead marker definition
+    svg.append('defs').append('marker')
+      .attr('id', 'arrowhead')
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 8)
+      .attr('refY', 0)
+      .attr('markerWidth', 6)
+      .attr('markerHeight', 6)
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M0,-5L10,0L0,5')
+      .attr('fill', '#515151');
+    
+    // Add year text
+    annotationGroup.append('text')
+      .attr('x', endX + (ann.dx > 0 ? 10 : -5))
+      .attr('y', endY + -5)
+      .text(ann.year)
+      .attr('text-anchor', ann.anchor)
+      .style('font-family', 'Lora')
+      .style('font-size', '14px')
+      .style('font-style', 'italic')
+      .style('fill', '#515151');
+
+      // Add source at the bottom
+    svg.append('text')
+        .attr('x', 320) // center of SVG
+     .attr('y', 520) // bottom with margin
+     .attr('text-anchor', 'middle')
+     .style('font-family', 'Lora')
+     .style('font-size', '12px')
+     .style('font-style', 'italic')
+     .style('fill', '#515151')
+     .text('Source: Brazil Central Bank');
+  });
+</script>
+
+<!-- Script for the Mapbox GL JS -->
 
 <script>
 
@@ -130,7 +769,8 @@ const map = new mapboxgl.Map({
   container: 'map', // container element id
   style: 'mapbox://styles/mapbox/light-v11',
   center: [-51.5859, -10.0133], // initial map center in [lon, lat]
-  zoom: 3
+  zoom: 3,
+  interactive: false
 });
 
 map.on('load', () => {
@@ -143,7 +783,7 @@ map.on('load', () => {
     },
     paint: {
       'circle-radius': 2.1,
-      'circle-color': '#2dc4b2',
+      'circle-color': '#32bcad',
     //   'circle-opacity': 0.6,
     'circle-opacity': [
     'interpolate',
