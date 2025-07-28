@@ -302,6 +302,7 @@ a {
 
 .session {
   margin-bottom: 20px;
+  font-family: 'Lora', Georgia, serif; 
 }
 
 .row {
@@ -613,134 +614,151 @@ a {
     </section>
 </div>
 
-
- <!-- your JS code that uses d3 to manipulate data -->
+<!-- Script for the SVG chart -->
 <script>
-  d3.csv("page_data/munis_with_agencies.csv").then(data => {
-    // Grid configuration
-    const gridSize = 20;
-    const gap = 2;
-    const cols = 10;
-    const rows = 10;
-    
-    // Calculate total chart dimensions
-    const chartWidth = cols * (gridSize + gap) - gap;
-    const chartHeight = rows * (gridSize + gap) - gap;
-    
-    // SVG dimensions with space for title and source
-    const svgWidth = 640;
-    const svgHeight = chartHeight + 175; // Extra space for title and source
-    
-    // Create SVG container
-    const svg = d3.select('#my-svg-chart')
-      .append('svg')
-      .attr('width', svgWidth)
-      .attr('height', svgHeight);
+  // Step 3. add data variables
+  const values = [100, 64.1, 53.4]; // Three values for concentric circles
+  const years = ["", "2016", "2025"]; // Corresponding years for annotations
+  
+  // Step 4. transform data into usable scales
+  const scaleRadius = d3.scaleSqrt()
+    .domain([0, 100]) // 100 is our largest value
+    .range([0, 200]); // Max radius of 200 pixels
+  
+  // Step 5. create SVG container
+  const svg = d3.select("#my-svg-chart")
+    .append("svg")
+    .attr('width', 640)
+    .attr('height', 560)
+    .style('background-color', '#f0fcfc'); // Light background for better visibility
 
-    // Add title
+  // Add title at the top
+  svg.append('text')
+    .attr('x', 320) // center of SVG
+    .attr('y', 40) // top margin
+    .attr('text-anchor', 'middle')
+    .style('font-family', 'Lora')
+    .style('font-size', '20px')
+    .style('font-weight', 'bold')
+    .style('fill', '#515151')
+    .text('Municipalities with at least one bank agency:');
+  
+  // Center coordinates
+  const centerX = 320;
+  const centerY = 280;
+  
+  // Step 6. create SVG circles
+  const circles = svg
+    .selectAll('circle')
+    .data(values.sort((a,b) => b - a)) // Sort from largest to smallest
+    .enter()
+    .append('circle');
+  
+  // Step 7. position the circles concentrically
+  circles
+    .attr('cx', centerX)
+    .attr('cy', centerY)
+    .attr('r', d => scaleRadius(d));
+  
+  // Step 8. color the circles with different opacities
+  const colors = ['#d3e4e5', '#32bcad', '#FF9344']; // Color palette
+  circles
+    .style('fill', (d,i) => colors[i])
+    .style('opacity', 0.7)
+    .style('stroke', '#333')
+    .style('stroke-width', 1);
+  
+  // Add value labels
+  svg.selectAll('.value-label')
+    .data(values)
+    .enter()
+    .append('text')
+    .attr('x', centerX)
+    .attr('y', (d,i) => centerY - scaleRadius(d) - 4)
+    .text(d => d + "%")
+    .attr('text-anchor', 'middle')
+    .style('font-family', 'Lora')
+    .style('font-size', '12px')
+    .style('fill', '#515151')
+    .style('font-weight', 'bold');
+  
+  // Add year annotations with arrows (only for 64.1 and 53.4)
+  const annotations = [
+    {
+      value: 64.1,
+      year: "2016",
+      dx: -40,  // x offset from circle edge
+      dy: -40,   // y offset from circle edge
+      anchor: "end"
+    },
+    {
+      value: 53.4,
+      year: "2025",
+      dx: -140,
+      dy: -90,
+      anchor: "start"
+    }
+  ];
+  
+  // Create annotation group
+  const annotationGroup = svg.append('g')
+    .attr('class', 'annotations');
+  
+  // Add each annotation
+  annotations.forEach(ann => {
+    const radius = scaleRadius(ann.value);
+    const angle = Math.atan2(ann.dy, ann.dx);
+    const startX = centerX + radius * Math.cos(angle);
+    const startY = centerY + radius * Math.sin(angle);
+    const endX = centerX + (radius + 40) * Math.cos(angle);
+    const endY = centerY + (radius + 40) * Math.sin(angle);
+    
+    // Add arrow line
+    annotationGroup.append('line')
+      .attr('x1', startX)
+      .attr('y1', startY)
+      .attr('x2', endX)
+      .attr('y2', endY)
+      .attr('stroke', '#515151')
+      .attr('stroke-width', 1)
+      .attr('marker-end', 'url(#arrowhead)');
+    
+    // Add arrowhead marker definition
+    svg.append('defs').append('marker')
+      .attr('id', 'arrowhead')
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 8)
+      .attr('refY', 0)
+      .attr('markerWidth', 6)
+      .attr('markerHeight', 6)
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M0,-5L10,0L0,5')
+      .attr('fill', '#515151');
+    
+    // Add year text
+    annotationGroup.append('text')
+      .attr('x', endX + (ann.dx > 0 ? 10 : -5))
+      .attr('y', endY + -5)
+      .text(ann.year)
+      .attr('text-anchor', ann.anchor)
+      .style('font-family', 'Lora')
+      .style('font-size', '14px')
+      .style('font-style', 'italic')
+      .style('fill', '#515151');
+
+      // Add source at the bottom
     svg.append('text')
-      .attr('x', svgWidth / 2)
-      .attr('y', 45)
-      .attr('text-anchor', 'middle')
-      .style('font-size', '20px')
-      .style('font-weight', 'bold')
-      .style('fill', '#515151')
-      .text('Municipalities with at least one bank agency:');
-
-    // Create year legend group (positioned between title and chart)
-    const legendGroup = svg.append('g')
-      .attr('transform', `translate(${svgWidth/2}, 80)`);
-
-    // Create centered chart group
-    const chartGroup = svg.append('g')
-      .attr('transform', `translate(${(svgWidth - chartWidth) / 2}, 100)`);
-
-    // Create grid
-    chartGroup.selectAll('rect')
-      .data(data)
-      .join('rect')
-      .attr('x', (d, i) => (i % cols) * (gridSize + gap))
-      .attr('y', (d, i) => Math.floor(i / cols) * (gridSize + gap))
-      .attr('width', gridSize)
-      .attr('height', gridSize)
-      .style('fill', 'lightgrey');
-
-    // Function to update year legend
-    const updateYearLegend = (year_ID) => {
-      const is2016 = year_ID === 'agencies_2025';
-      const yearText = is2016 ? '2025' : '2016';
-      const textColor = is2016 ? '#e7f7f5' : '#fcefe6';
-      const bgColor = is2016 ? '#32bcad' : '#de5e00';
-
-      // Remove existing legend if any
-      legendGroup.selectAll('*').remove();
-
-      // Add background rectangle
-      legendGroup.append('rect')
-        .attr('x', -30)
-        .attr('y', -15)
-        .attr('width', 60)
-        .attr('height', 30)
-        .attr('rx', 5) // rounded corners
-        .attr('ry', 5)
-        .style('fill', bgColor);
-
-      // Add year text
-      legendGroup.append('text')
-        .attr('text-anchor', 'middle')
-        .attr('dominant-baseline', 'middle')
-        .style('font-size', '16px')
-        .style('font-weight', 'bold')
-        .style('fill', textColor)
-        .text(yearText);
-    };
-
-    // Animation function
-    const showTowns = function(year_ID) {
-      // Update legend first
-      updateYearLegend(year_ID);
-      
-      chartGroup.selectAll('rect')
-        .transition()
-        .duration(500)
-        .delay(2000)
-        .style('fill', d => {
-          if (d[year_ID] == '0') return 'lightgrey';
-          if (d[year_ID] == '1') return '#32bcad';
-          if (d[year_ID] == '2') return '#de5e00';
-          return 'lightgrey';
-        })
-        .on('end', function() {
-          showTowns(year_ID === 'agencies_2016' ? 'agencies_2025' : 'agencies_2016');
-        });
-    };
-
-    // Add source
-    svg.append('text')
-      .attr('x', svgWidth / 2)
-      .attr('y', 100 + chartHeight + 20)
-      .attr('text-anchor', 'middle')
-      .style('font-size', '12px')
-      .style('font-style', 'none')
-      .style('fill', '#515151')
-      .text('Source: Brazil Central Bank');
-
-    // Start animation
-    showTowns('agencies_2016');
+        .attr('x', 320) // center of SVG
+     .attr('y', 520) // bottom with margin
+     .attr('text-anchor', 'middle')
+     .style('font-family', 'Lora')
+     .style('font-size', '12px')
+     .style('font-style', 'italic')
+     .style('fill', '#515151')
+     .text('Source: Brazil Central Bank');
   });
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
 
 <!-- Script for the Mapbox GL JS -->
 

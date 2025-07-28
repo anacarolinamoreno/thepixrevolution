@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+  <head>
+
+    <!-- some basic stuff  -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Animated SVG</title>
+
+    <!-- 
+      add your stylesheet 
+      base.css loads the basic stuff
+      you can tweak your css in custom.css
+      WARNING: the order of the stylesheets matters
+    -->
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="custom.css">
+
+    <!-- add your d3 script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <!-- add Scrollama -->
+    <script src="https://unpkg.com/scrollama"></script>
+
+    <!-- your JS code that uses d3 to manipulate data -->
+    <script>
+
+      // Load data with d3.csv()
+      d3.csv("page_data/munis_with_agencies.csv")
+
+        .then(data => {
+
+          // Create SVG container with additional space for title and source
+          const svgWidth = 640;
+          const svgHeight = 700; // Increased height to accommodate title and source
+          const margin = {top: 10, bottom: 10}; // Margins for title and source
+
+          const myChart = d3
+            .select('#my-svg-chart')
+            .append('svg')
+            .attr('width', svgWidth)
+            .attr('height', svgHeight)
+          
+          // Add centered title at the top
+          myChart.append("text")
+            .attr("x", svgWidth / 2)
+            .attr("y", 40)
+            .attr("text-anchor", "middle")
+            .style("font-size", "20px")
+            .style("font-weight", "bold")
+            .text("Municipalities with at least one bank agency");
+
+          // Create main chart group (to keep the original positioning)
+          const chartGroup = myChart.append("g")
+            .attr("transform", `translate(0, ${margin.top})`);
+
+          // Create the shape
+          const individualCharts = myChart
+            .selectAll('rect')
+            .data(data)
+            .join('rect');
+
+          const gridSize = 20, gap = 2;
+
+          individualCharts
+            .attr('x', (d,i) => {
+              return Math.floor(i%10)*(gridSize+ gap);
+            })
+            .attr('y', (d,i) => {
+              return Math.floor(i/10)*(gridSize+ gap);
+            })
+            .attr('width', gridSize)
+            .attr('height', gridSize)
+          
+          // ANIMATION: change colors according to values on a CSV //
+
+          // start with grey squares
+          individualCharts.style('fill','lightgrey')
+
+          const showTowns = function(year_ID) {
+
+            individualCharts
+                  .transition()
+                  .duration(500)
+                  .delay(2000)
+                  .style('fill', d=> {
+                      if (d[year_ID] == '0') {return 'lightgrey'}
+                      else if (d[year_ID] == '1') {return '#32bcad'}
+                      else if (d[year_ID] == '2') {return '#de5e00'}
+                      else {return 'lightgrey'}
+                  })
+                  .on('end', function(){
+                    if (year_ID == 'agencies_2016') {
+                        showTowns('agencies_2025')
+                    } else {
+                        showTowns('agencies_2016');
+                    }
+
+                  })
+          }
+
+
+
+          // run the animation.
+        //   showSquareData();
+        showTowns('agencies_2016');
+
+
+        })
+
+    </script>
+
+  </head>
+  <body>
+    <h1>100 days of happiness</h1>
+    <p></p>
+    <!-- putting your buttons here -->
+    <div id="my-svg-chart"></div>
+
+
+  </body>
+</html>

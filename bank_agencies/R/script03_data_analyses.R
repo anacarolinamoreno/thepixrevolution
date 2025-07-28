@@ -145,6 +145,31 @@ muni_with_banks <- left_join(x = banks_in_muni,
 # That's a 17.2% drop from 2016, when it had 3,571 towns with a bank agency.
 # Back in 2016, 64.1% of towns had a bank agency. Now, it's just over half (53.1%).
 
+##################
+#DATAVIZ PREP
+##################
+
+# I want to use this insight (fewer municipalities with brick-and-mortar banks) in a dataviz.
+# I chose an animated SVG using d3 on my HTML
+# So I need a dataset with 100 rows and 3 columns:
+# Column 1 (pct): listing numbers from 1 to 100 as the percentiles
+# Column 2 (agencies_2016): 64 rows showing the value 1 (because they have an agency) and 36 with value 0
+# Column 3 (agencies_2025): 64 rows showing the value 1 (because they have an agency) and 36 with value 0
+
+# Create the three vectors
+pct <- 1:100  # Percentiles from 1 to 100
+agencies_2016 <- c(rep(0, 36), rep(1, 64))  # 64% of towns with agencies
+agencies_2025 <- c(rep(0, 47), rep(2, 53))  # 53% of towns with agencies
+
+# Combine into a dataframe
+d3_df <- data.frame(pct, agencies_2016, agencies_2025)
+
+# View the first few rows
+head(d3_df)
+
+write.csv(d3_df, "data/munis_with_agencies.csv", row.names = F)
+write.csv(d3_df, "~/Documents/Lede_2025/thepixrevolution/page_data/munis_with_agencies.csv", row.names = F)
+
 ### QUESTION: How many people live in places without a bank agency?
 
 # Let's use the "sidrar" package to fetch the population estimates for each town and year:
