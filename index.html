@@ -25,7 +25,7 @@
     /* Container 1: HEAD */
     .head-container {
       max-width: 800px; 
-      max-height: 480px; 
+      /* max-height: 480px;  */
       display: flex; 
       border: 0px; 
       margin: 0px auto; 
@@ -52,6 +52,8 @@
       line-height: 1.1;
       max-width: 640px;
       color: #31285f;
+      text-shadow: 0px 0px 30px white,
+                0px 0px 10px rgba(242, 240, 240, 0.5);
     }
 
     .subhead {
@@ -60,6 +62,8 @@
       margin-bottom: 1em;
       max-width: 640px;
       color: #31285f;
+      text-shadow: 0px 0px 30px white,
+                0px 0px 10px rgba(242, 240, 240, 0.5);
     }
 
     .by-line {
@@ -69,6 +73,8 @@
       max-width: 640px;
       color: #515151;
       text-align: center;
+      text-shadow: 0px 0px 30px white,
+                0px 0px 10px rgba(242, 240, 240, 0.5);
     }
 
     .date {
@@ -78,6 +84,37 @@
       max-width: 640px;
       color: #515151;
       text-align: center;
+      text-shadow: 0px 0px 30px white,
+                0px 0px 10px rgba(242, 240, 240, 0.5);
+    }
+
+    /* Head styles for MOBILE */
+    @media only screen and (max-width: 768px) {
+      .head-container {
+        flex-direction: column;
+        max-height: none;
+      }
+      
+      .head-text {
+        width: 100%;
+        padding: 15px;
+        overflow-y: visible;
+      }
+      
+      .head {
+        font-size: 2.5em;
+      }
+      
+      .head-img {
+        width: 100%;
+        height: auto;
+      }
+      
+      .head-img img {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+      }
     }
 
     /* Divider line to use if necessary between sections */
@@ -155,6 +192,20 @@
         margin-right: 0;
         background-size: cover;
     } 
+
+        /* Head styles for MOBILE */
+    @media only screen and (max-width: 640px) {
+      .image {
+        position: relative;
+        max-width: 100%;
+        display: block;
+        margin-top: 30px;
+        margin-bottom: 40px;
+        margin-left: 0;
+        margin-right: 0;
+        background-size: cover;
+    } 
+    }
 
 
     /* Container 3: MAPBOX GL JS */
