@@ -193,19 +193,15 @@
         background-size: cover;
     } 
 
-        /* Head styles for MOBILE */
-    @media only screen and (max-width: 640px) {
+        /* Image style for MOBILE */
+      @media only screen and (max-width: 768px) {
       .image {
-        position: relative;
         max-width: 100%;
-        display: block;
-        margin-top: 30px;
-        margin-bottom: 40px;
-        margin-left: 0;
-        margin-right: 0;
-        background-size: cover;
-    } 
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
+        margin-right: calc(-50vw + 50%);
     }
+}
 
 
     /* Container 3: MAPBOX GL JS */
