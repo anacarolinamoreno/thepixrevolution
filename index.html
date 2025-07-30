@@ -155,7 +155,7 @@
         position: relative; 
         z-index: 1; 
         background-color: #f0fcfc; /* Optional: make text more readable */
-        padding: 0; /* Optional: add some spacing */
+        padding: 2; /* Optional: add some spacing */
         margin-top: 10px; /* Optional: add some top margin */   
         margin-bottom: 0;
     }
@@ -253,9 +253,13 @@
     .svg-container {
         min-height: 100vh;
         padding: 0;
-        max-width: 640px;
+        max-width: 100%;
         margin: 0 auto;
         background: #f0fcfc;
+        overflow: hidden;
+        display: flex;
+        justify-content: center; /* Horizontal centering */
+        align-items: center;     /* Vertical centering */
     }
 
     #my-svg-chart, svg {
@@ -263,6 +267,8 @@
         position: relative;
         margin: 0 auto;
         padding: 0;
+        width: 100%;
+        height: auto;
     }
 
     #my-svg-chart g {
@@ -278,6 +284,21 @@
     #my-svg-chart .show text {
         display: block;
     }
+
+        /* SVG Mobile style */
+         @media only screen and (max-width: 768px) {
+          .svg-container {
+            padding: 0 10px; /* Add some padding on mobile */
+          }
+        
+          #my-svg-chart text {
+            font-size: 16px !important; /* Adjust text size for mobile */
+          }
+        
+          #my-svg-chart .title-text {
+            font-size: 18px !important; /* Specifically target the title */
+          }
+        }
 
     /* Container 5: FOOTER */
     .footer-container {
@@ -661,11 +682,11 @@ a {
 </div>
 
 
- <!-- your JS code that uses d3 to manipulate data -->
+<!-- your JS code that uses d3 to manipulate data -->
 <script>
   d3.csv("page_data/munis_with_agencies.csv").then(data => {
     // Grid configuration
-    const gridSize = 20;
+    const gridSize = 30;
     const gap = 2;
     const cols = 10;
     const rows = 10;
@@ -776,14 +797,6 @@ a {
     showTowns('agencies_2016');
   });
 </script>
-
-
-
-
-
-
-
-
 
 
 

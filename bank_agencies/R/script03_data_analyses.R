@@ -155,7 +155,7 @@ muni_with_banks <- left_join(x = banks_in_muni,
 # Column 1 (pct): listing numbers from 1 to 100 as the percentiles
 # Column 2 (agencies_2016): 64 rows showing the value 1 (because they have an agency) and 36 with value 0
 # Column 3 (agencies_2025): 64 rows showing the value 1 (because they have an agency) and 36 with value 0
-
+?case_when
 # Create the three vectors
 pct <- 1:100  # Percentiles from 1 to 100
 agencies_2016 <- c(rep(0, 36), rep(1, 64))  # 64% of towns with agencies
@@ -163,6 +163,16 @@ agencies_2025 <- c(rep(0, 47), rep(2, 53))  # 53% of towns with agencies
 
 # Combine into a dataframe
 d3_df <- data.frame(pct, agencies_2016, agencies_2025)
+
+#
+d3_df <- d3_df |>
+  dplyr::mutate(
+    value_2016 = dplyr::case_when(
+      pct == 37 ~ "64%",
+      T ~ NA),
+    value_2025 = dplyr::case_when(
+      pct == 48 ~ "53%",
+      T ~ NA))
 
 # View the first few rows
 head(d3_df)
